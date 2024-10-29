@@ -19,5 +19,5 @@ app.use('/Profesores', ProfesorRouters);
 app.use('/Evaluaciones', EvaluacionRouters);
 
 
-module.exports = app;//holi este es un puto cmmit
+module.exports = app;
 
