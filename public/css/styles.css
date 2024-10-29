@@ -1,0 +1,19 @@
+.hidden {
+    display: none;
+}
+
+#video-container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+#question-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.option {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+}

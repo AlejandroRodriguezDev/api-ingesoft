@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura Interactiva</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="video-container">
+        <video id="video" controls>
+            <source src="video/video.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div id="question-container" class="hidden">
+        <p id="question-text"></p>
+        <div id="options">
+            <button class="option" onclick="chooseOption('A')"></button>
+            <button class="option" onclick="chooseOption('B')"></button>
+            <button class="option" onclick="chooseOption('C')"></button>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
