@@ -6,13 +6,11 @@ const AutenController = {
         const { tipo_de_user, email, contraseña, id_curso, nombre } = req.body;
 
         try {
-            // Verifica que el tipo de usuario esté definido y sea válido
             if (!tipo_de_user || (tipo_de_user !== 'profesor' && tipo_de_user !== 'estudiante')) {
                 return res.status(400).json({ error: "El tipo de usuario es obligatorio y debe ser 'profesor' o 'estudiante'" });
             }
 
             if (tipo_de_user === 'profesor') {
-                // Registro de profesor
                 if (!email || !contraseña) {
                     return res.status(400).json({ error: "Correo electrónico y contraseña son obligatorios para profesores" });
                 }
@@ -29,7 +27,6 @@ const AutenController = {
                 });
 
             } else if (tipo_de_user === 'estudiante') {
-                // Registro de estudiante
                 if (!id_curso || !nombre || !contraseña) {
                     return res.status(400).json({ error: "ID de curso, nombre y contraseña son obligatorios para estudiantes" });
                 }
@@ -78,11 +75,11 @@ const AutenController = {
 
         // Lógica de inicio de sesión para estudiantes
         } else if (tipo_de_user === 'estudiante') {
-            const query = "SELECT * FROM estudiantes WHERE id_curso = ?";
-            db.query(query, [id_curso], (err, results) => {
+            const query = "SELECT * FROM estudiantes WHERE id_curso = ? AND contrasena = ?";
+            db.query(query, [id_curso, contraseña], (err, results) => {
                 if (err) return res.status(500).json({ error: err.message });
 
-                if (results.length === 0 || results[0].contrasena !== contraseña) {
+                if (results.length === 0) {
                     return res.status(401).json({ message: "ID de curso o contraseña incorrectos" });
                 }
 
