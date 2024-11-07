@@ -1,9 +1,8 @@
 const db = require('../../../db');
-const bcrypt = require('bcrypt'); // Para encriptar la contraseña
 
 const AutenController = {
     // Registro de usuario
-    register: async (req, res) => {
+    register: (req, res) => {
         const { tipo_de_user, email, contraseña, id_curso, nombre } = req.body;
 
         try {
@@ -12,9 +11,6 @@ const AutenController = {
                 return res.status(400).json({ error: "El tipo de usuario es obligatorio y debe ser 'profesor' o 'estudiante'" });
             }
 
-            // Encriptar la contraseña
-            const hashedPassword = await bcrypt.hash(contraseña, 10);
-
             if (tipo_de_user === 'profesor') {
                 // Registro de profesor
                 if (!email || !contraseña) {
@@ -22,7 +18,7 @@ const AutenController = {
                 }
 
                 const queryProfesor = "INSERT INTO profesores (email, contrasena) VALUES (?, ?)";
-                db.query(queryProfesor, [email, hashedPassword], (err, results) => {
+                db.query(queryProfesor, [email, contraseña], (err, results) => {
                     if (err) {
                         if (err.code === 'ER_DUP_ENTRY') {
                             return res.status(409).json({ error: "El correo electrónico ya está en uso" });
@@ -39,7 +35,7 @@ const AutenController = {
                 }
 
                 const queryEstudiante = "INSERT INTO estudiantes (id_curso, nombre, contrasena) VALUES (?, ?, ?)";
-                db.query(queryEstudiante, [id_curso, nombre, hashedPassword], (err, results) => {
+                db.query(queryEstudiante, [id_curso, nombre, contraseña], (err, results) => {
                     if (err) {
                         return res.status(500).json({ error: err.message });
                     }
@@ -63,20 +59,14 @@ const AutenController = {
         // Lógica de inicio de sesión para profesores
         if (tipo_de_user === 'profesor') {
             const query = "SELECT * FROM profesores WHERE email = ?";
-            db.query(query, [email], async (err, results) => {
+            db.query(query, [email], (err, results) => {
                 if (err) return res.status(500).json({ error: err.message });
 
-                if (results.length === 0) {
+                if (results.length === 0 || results[0].contrasena !== contraseña) {
                     return res.status(401).json({ message: "Correo electrónico o contraseña incorrectos" });
                 }
 
                 const profesor = results[0];
-                const isMatch = await bcrypt.compare(contraseña, profesor.contrasena);
-
-                if (!isMatch) {
-                    return res.status(401).json({ message: "Correo electrónico o contraseña incorrectos" });
-                }
-
                 res.status(200).json({
                     message: "Inicio de sesión de profesor exitoso",
                     user: {
@@ -89,20 +79,14 @@ const AutenController = {
         // Lógica de inicio de sesión para estudiantes
         } else if (tipo_de_user === 'estudiante') {
             const query = "SELECT * FROM estudiantes WHERE id_curso = ?";
-            db.query(query, [id_curso], async (err, results) => {
+            db.query(query, [id_curso], (err, results) => {
                 if (err) return res.status(500).json({ error: err.message });
 
-                if (results.length === 0) {
+                if (results.length === 0 || results[0].contrasena !== contraseña) {
                     return res.status(401).json({ message: "ID de curso o contraseña incorrectos" });
                 }
 
                 const estudiante = results[0];
-                const isMatch = await bcrypt.compare(contraseña, estudiante.contrasena);
-
-                if (!isMatch) {
-                    return res.status(401).json({ message: "ID de curso o contraseña incorrectos" });
-                }
-
                 res.status(200).json({
                     message: "Inicio de sesión de estudiante exitoso",
                     user: {
